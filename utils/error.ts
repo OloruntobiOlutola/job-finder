@@ -2,8 +2,8 @@ export class ErrorObject extends Error {
   constructor(
     public message: string,
     public statusCode: number,
-    public status: string,
-    public operational: boolean
+    public status?: string,
+    public operational?: boolean
   ) {
     super(message);
     this.statusCode = statusCode;

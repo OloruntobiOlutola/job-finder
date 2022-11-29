@@ -1,0 +1,1 @@
+export type rolesType = [string];
