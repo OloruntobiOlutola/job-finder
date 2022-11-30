@@ -1,4 +1,6 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
+import dotenv from "dotenv";
+dotenv.config();
 import path from "path";
 import * as fs from "fs";
 import cors from "cors";
@@ -7,6 +9,9 @@ import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import xss from "xss-clean";
 import mongoSanitize from "express-mongo-sanitize";
+import userRouter from "./src/users/user-routes";
+import { ErrorObject } from "./utils/error";
+import ErrorHandler from "./utils/error-controller";
 
 const app: Express = express();
 
@@ -52,5 +57,18 @@ const accessLogStream = fs.createWriteStream(
 );
 
 app.use(morgan("combined", { stream: accessLogStream }));
+
+// Routes
+app.use("/api/v1/users", userRouter);
+app.all("*", (req: Request, res: Response, next: NextFunction) => {
+  const err = new ErrorObject(
+    `${req.protocol}://${req.get("host")}${req.url} not found`,
+    404
+  );
+  next(err);
+});
+
+// Error Handling
+app.use(ErrorHandler);
 
 export default app;

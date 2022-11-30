@@ -27,6 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updatePassword = exports.resetPassword = exports.signIn = exports.signUp = void 0;
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const jwt = __importStar(require("jsonwebtoken"));
 const catch_async_1 = require("../../utils/catch-async");
 const error_1 = require("../../utils/error");
@@ -55,22 +57,17 @@ const createAndSendToken = (0, catch_async_1.catchAsync)(async (user, statusCode
     res.status(statusCode).json({
         status: "success",
         token,
-        data: {
-            user,
-        },
+        user,
     });
 });
 exports.signUp = (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    const { email, name, password, passwordConfirm, role, location, skill, experience, phoneNumber, } = req.body;
+    const { email, name, password, passwordConfirm, role, phoneNumber } = req.body;
     const user = await users_model_1.default.create({
         email,
         name,
         password,
         passwordConfirm,
         role,
-        location,
-        skill,
-        experience,
         phoneNumber,
     });
     createAndSendToken(user, 201, res);

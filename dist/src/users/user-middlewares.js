@@ -26,21 +26,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.protect = exports.validateUser = void 0;
+exports.protect = exports.restrictTo = exports.validateUser = void 0;
 const jwt = __importStar(require("jsonwebtoken"));
 const catch_async_1 = require("../../utils/catch-async");
 const error_1 = require("../../utils/error");
 const user_validation_1 = __importDefault(require("./user-validation"));
 const users_model_1 = __importDefault(require("./users-model"));
 exports.validateUser = (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    const payload = { ...req.body };
-    const { error } = user_validation_1.default.validate(payload);
+    const payload = {
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        passwordConfirm: req.body.passwordConfirm,
+        phoneNumber: req.body.phoneNumber,
+        role: req.body.role,
+    };
+    const { error } = await user_validation_1.default.validateAsync({ ...payload });
     if (error) {
         return next(new error_1.ErrorObject(`Error in User Data : ${error.message}`, 406));
     }
     next();
 });
-exports.restrictTo = (...roles) => {
+const restrictTo = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return next(new error_1.ErrorObject("You are not authorised to perform this action.", 403));
@@ -48,6 +55,7 @@ exports.restrictTo = (...roles) => {
         next();
     };
 };
+exports.restrictTo = restrictTo;
 exports.protect = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     let token;
     if (req.headers.authorization &&

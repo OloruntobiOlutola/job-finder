@@ -8,9 +8,15 @@ import User from "./users-model";
 
 export const validateUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const payload = { ...req.body };
-
-    const { error } = userValidation.validate(payload);
+    const payload = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      passwordConfirm: req.body.passwordConfirm,
+      phoneNumber: req.body.phoneNumber,
+      role: req.body.role,
+    };
+    const { error } = await userValidation.validateAsync({ ...payload });
     if (error) {
       return next(
         new ErrorObject(`Error in User Data : ${error.message}`, 406)
@@ -21,7 +27,7 @@ export const validateUser = catchAsync(
 );
 
 // Authorization
-exports.restrictTo = (...roles: rolesType) => {
+export const restrictTo = (...roles: rolesType) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     if (!roles.includes(req.user.role)) {

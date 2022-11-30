@@ -6,19 +6,68 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const crypto_1 = __importDefault(require("crypto"));
+const validator_1 = __importDefault(require("validator"));
 const userSchema = new mongoose_1.Schema({
-    name: String,
-    email: String,
+    name: {
+        type: String,
+        required: [true, "The name field is required"],
+        maxLength: [30, "A name must not be more than 30 characters"],
+        minLength: [3, "A name must be at least 3 characters"],
+        trim: true,
+    },
+    email: {
+        type: String,
+        required: [true, "Email field is required for all users"],
+        validate: [validator_1.default.isEmail, "Please enter a valid email"],
+        unique: [true],
+    },
     password: {
         type: String,
+        required: [true, "A user must have an password"],
+        select: false,
+        minLength: [8, "Password must ba at least 8 characters"],
+        validate: {
+            validator: function (val) {
+                return /^(?=.*[A-Z])(?=.*[a-z])(?=.*[\d])[A-Za-z\d]{8,}/.test(val);
+            },
+            message: "Password must contain at least a number, a lowercase and an uppercase alphabeth",
+        },
+    },
+    skills: {
+        type: [String],
+    },
+    yearsOfExperience: {
+        type: Number,
+    },
+    location: {
+        type: String,
+        enum: ["Ajah", "Lekki", "Lagos Mainland", "V.I", "Epe"],
+    },
+    passwordConfirm: {
+        type: String,
+        required: [true, "A user must have an passwordConfirm"],
+        validate: {
+            validator: function (val) {
+                return val === this.password;
+            },
+            message: "Password and confirm password are different",
+        },
         select: false,
     },
-    skills: [String],
-    experience: Number,
-    location: String,
-    passwordConfirm: String,
-    phoneNumber: String,
-    role: String,
+    phoneNumber: {
+        type: String,
+        validate: {
+            validator: function (val) {
+                return /[0]{1}[0-9]{10}/.test(val);
+            },
+            message: "Please enter a valid phone number",
+        },
+    },
+    role: {
+        type: String,
+        enum: ["employee", "employer", "admin"],
+        default: "employee",
+    },
     passwordResetToken: String,
     passwordChangedAt: Date,
     passwordTokenExpires: Date,

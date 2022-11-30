@@ -1,4 +1,6 @@
 import { NextFunction, Request, Response } from "express";
+import dotenv from "dotenv";
+dotenv.config();
 import * as jwt from "jsonwebtoken";
 import { catchAsync } from "../../utils/catch-async";
 import { ErrorObject } from "../../utils/error";
@@ -36,9 +38,7 @@ const createAndSendToken = catchAsync(
     res.status(statusCode).json({
       status: "success",
       token,
-      data: {
-        user,
-      },
+      user,
     });
   }
 );
@@ -46,26 +46,14 @@ const createAndSendToken = catchAsync(
 // Sign Up User
 export const signUp = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      email,
-      name,
-      password,
-      passwordConfirm,
-      role,
-      location,
-      skill,
-      experience,
-      phoneNumber,
-    } = req.body;
+    const { email, name, password, passwordConfirm, role, phoneNumber } =
+      req.body;
     const user: HydratedDocument<UserDto> = await User.create({
       email,
       name,
       password,
       passwordConfirm,
       role,
-      location,
-      skill,
-      experience,
       phoneNumber,
     });
     // @ts-ignore

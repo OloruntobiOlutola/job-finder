@@ -7,7 +7,7 @@ export interface UserDto {
 
   skills: [string] | undefined;
 
-  experience: Number | undefined;
+  yearsOfExperience: Number | undefined;
 
   location: string | undefined;
 
