@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.protectEmployee = exports.sameEmployee = exports.updateEmployee = exports.validateEmployee = exports.employeeUpdatePassword = exports.employeeResetPassword = exports.employeeForgotPassword = exports.signInEmployee = exports.signUpEmployee = exports.deleteEmployee = exports.getEmployees = exports.getEmployee = void 0;
+const generic_controllers_1 = require("../../../utils/generic-controllers");
+const user_auth_controllers_1 = require("../user-auth-controllers");
+const user_middlewares_1 = require("../user-middlewares");
+const employees_model_1 = __importDefault(require("./employees-model"));
+exports.getEmployee = (0, generic_controllers_1.getOne)(employees_model_1.default);
+exports.getEmployees = (0, generic_controllers_1.getAll)(employees_model_1.default);
+exports.deleteEmployee = (0, generic_controllers_1.deleteOne)(employees_model_1.default);
+exports.signUpEmployee = (0, user_auth_controllers_1.signUp)(employees_model_1.default);
+exports.signInEmployee = (0, user_auth_controllers_1.signIn)(employees_model_1.default);
+exports.employeeForgotPassword = (0, user_auth_controllers_1.forgotPassword)(employees_model_1.default);
+exports.employeeResetPassword = (0, user_auth_controllers_1.resetPassword)(employees_model_1.default);
+exports.employeeUpdatePassword = (0, user_auth_controllers_1.updatePassword)(employees_model_1.default);
+exports.validateEmployee = (0, user_middlewares_1.validateUser)(employees_model_1.default);
+exports.updateEmployee = (0, generic_controllers_1.updateOne)(employees_model_1.default);
+exports.sameEmployee = (0, user_middlewares_1.samePerson)(employees_model_1.default);
+exports.protectEmployee = (0, user_middlewares_1.protect)(employees_model_1.default);

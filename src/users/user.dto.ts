@@ -5,12 +5,6 @@ export interface UserDto {
 
   password: string | undefined;
 
-  skills: [string] | undefined;
-
-  yearsOfExperience: Number | undefined;
-
-  location: string | undefined;
-
   passwordConfirm: string | undefined;
 
   phoneNumber: string | undefined;

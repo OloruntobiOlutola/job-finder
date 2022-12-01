@@ -6,7 +6,7 @@ import { catchAsync } from "../../utils/catch-async";
 import { ErrorObject } from "../../utils/error";
 import { UserDto } from "./user.dto";
 import bcrypt from "bcrypt";
-import User from "./users-model";
+import User from "./users-schema";
 import sendEmail from "../../utils/email";
 import crypto from "crypto";
 import { HydratedDocument } from "mongoose";
@@ -44,11 +44,11 @@ const createAndSendToken = catchAsync(
 );
 
 // Sign Up User
-export const signUp = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const signUp = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, name, password, passwordConfirm, role, phoneNumber } =
       req.body;
-    const user: HydratedDocument<UserDto> = await User.create({
+    const user: HydratedDocument<UserDto> = await Model.create({
       email,
       name,
       password,
@@ -58,17 +58,16 @@ export const signUp = catchAsync(
     });
     // @ts-ignore
     createAndSendToken(user, 201, res);
-  }
-);
+  });
 
 // Sign In User
-export const signIn = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const signIn = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return next(new ErrorObject("Please enter your email and password", 400));
     }
-    const user = await User.findOne({ email }).select("+password");
+    const user = await Model.findOne({ email }).select("+password");
     if (!user) {
       return next(new ErrorObject("Invalid email or password", 401));
     }
@@ -81,13 +80,12 @@ export const signIn = catchAsync(
     }
     //   @ts-ignore
     createAndSendToken(user, 200, res);
-  }
-);
+  });
 
-exports.forgotPassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const forgotPassword = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // 1. Get User based on posted email
-    const user = await User.findOne({ email: req.body.email });
+    const user = await Model.findOne({ email: req.body.email });
     if (!user) {
       return next(
         new ErrorObject("There is no user with the provided email address", 404)
@@ -123,16 +121,15 @@ exports.forgotPassword = catchAsync(
       await user.save();
       next(new ErrorObject("Error while sending the token to your mail", 500));
     }
-  }
-);
+  });
 
-export const resetPassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const resetPassword = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const hashToken = crypto
       .createHash("sha256")
       .update(req.params.token)
       .digest("hex");
-    const user = await User.findOne({
+    const user = await Model.findOne({
       passwordResetToken: hashToken,
       passwordTokenExpires: { $gt: Date.now() },
     });
@@ -148,13 +145,12 @@ export const resetPassword = catchAsync(
     await user.save({ validateBeforeSave: false });
     // @ts-ignore
     createAndSendToken(user, 200, res);
-  }
-);
+  });
 
-export const updatePassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const updatePassword = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
-    const user: HydratedDocument<UserDto> = await User.findById(
+    const user: HydratedDocument<UserDto> = await Model.findById(
       // @ts-ignore
       req.user.id
     ).select("+password");
@@ -170,5 +166,4 @@ export const updatePassword = catchAsync(
 
     // @ts-ignore
     createAndSendToken(user, 200, res);
-  }
-);
+  });

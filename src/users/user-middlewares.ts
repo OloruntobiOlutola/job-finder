@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from "express";
+import dotenv from "dotenv";
+dotenv.config();
 import * as jwt from "jsonwebtoken";
 import { catchAsync } from "../../utils/catch-async";
 import { ErrorObject } from "../../utils/error";
 import { rolesType } from "./types";
 import userValidation from "./user-validation";
-import User from "./users-model";
 
-export const validateUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const validateUser = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const payload = {
       name: req.body.name,
       email: req.body.email,
@@ -16,15 +17,15 @@ export const validateUser = catchAsync(
       phoneNumber: req.body.phoneNumber,
       role: req.body.role,
     };
-    const { error } = await userValidation.validateAsync({ ...payload });
+    const validation = await userValidation(Model);
+    const { error } = await validation.validateAsync({ ...payload });
     if (error) {
       return next(
         new ErrorObject(`Error in User Data : ${error.message}`, 406)
       );
     }
     next();
-  }
-);
+  });
 
 // Authorization
 export const restrictTo = (...roles: rolesType) => {
@@ -40,8 +41,8 @@ export const restrictTo = (...roles: rolesType) => {
 };
 
 // Authentication
-export const protect = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const protect = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     let token;
     if (
       req.headers.authorization &&
@@ -60,10 +61,26 @@ export const protect = catchAsync(
       process.env.JWT_SECRET || "secret"
     );
 
-    const currentUser = await User.findById(decodedToken.id);
+    const currentUser = await Model.findById(decodedToken.id);
+
+    if (!currentUser) {
+      return next(new ErrorObject("Incorrect access token", 401));
+    }
 
     //   @ts-ignore
     req.user = currentUser;
     next();
-  }
-);
+  });
+
+export const samePerson = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    console.log(req.user.id);
+    // @ts-ignore
+    if (req.user.id !== req.params.id) {
+      return next(
+        new ErrorObject(`You're not authorised to perform this action`, 403)
+      );
+    }
+    next();
+  });

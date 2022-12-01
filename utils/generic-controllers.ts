@@ -64,3 +64,24 @@ export const deleteOne = (Model) =>
       data: null,
     });
   });
+
+export const updateOne = (Model: any) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    if (req.body.password || req.body.role) {
+      return next(new ErrorObject("You can't update it here", 400));
+    }
+    const updatedData = await Model.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedData)
+      return next(
+        new ErrorObject(`Document with the id ${req.params.id} not found`, 404)
+      );
+    res.status(200).json({
+      status: "success",
+      data: {
+        data: updatedData,
+      },
+    });
+  });

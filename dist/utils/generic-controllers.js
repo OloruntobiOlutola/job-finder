@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteOne = exports.createOne = exports.getAll = exports.getOne = void 0;
+exports.updateOne = exports.deleteOne = exports.createOne = exports.getAll = exports.getOne = void 0;
 const catch_async_1 = require("./catch-async");
 const error_1 = require("./error");
 const query_1 = require("./query");
@@ -49,3 +49,21 @@ const deleteOne = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next
     });
 });
 exports.deleteOne = deleteOne;
+const updateOne = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
+    if (req.body.password || req.body.role) {
+        return next(new error_1.ErrorObject("You can't update it here", 400));
+    }
+    const updatedData = await Model.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+    });
+    if (!updatedData)
+        return next(new error_1.ErrorObject(`Document with the id ${req.params.id} not found`, 404));
+    res.status(200).json({
+        status: "success",
+        data: {
+            data: updatedData,
+        },
+    });
+});
+exports.updateOne = updateOne;
