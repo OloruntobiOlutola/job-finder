@@ -21,7 +21,7 @@ const signToken = (id: string | undefined) => {
 };
 
 const createAndSendToken = catchAsync(
-  async (user: any, statusCode: number, res: Response) => {
+  async (user: UserDto, statusCode: number, res: Response) => {
     const token = await signToken(user._id);
     const cookieOptions = {
       expires: new Date(

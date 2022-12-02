@@ -3,7 +3,7 @@ export interface ProfileDto {
 
   cv: string | undefined;
 
-  yearsOfExperience: number | undefined;
+  yearsOfExperience: string | undefined;
 
   skill: string | undefined;
 

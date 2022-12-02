@@ -4,8 +4,7 @@ import { catchAsync } from "./catch-async";
 import { ErrorObject } from "./error";
 import { QueryMethod } from "./query";
 
-// @ts-ignore
-export const getOne = (Model) =>
+export const getOne = (Model: any) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const doc = await Model.findById(req.params.id);
 

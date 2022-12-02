@@ -24,47 +24,79 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const profileSchema = new mongoose_1.Schema({
-    userId: {
+const jobSchema = new mongoose_1.Schema({
+    employerId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "User",
-        required: [true, "A profile must belong to a user"],
+        ref: "Employer",
+        required: [true, "A job must have an employer"],
     },
-    cv: String,
+    companyName: {
+        type: String,
+        required: [true, "A job should have a company name"],
+    },
+    title: {
+        type: String,
+        required: [true, "Please enter the job title"],
+    },
     skill: {
         type: String,
+        required: [true, "Please enter the job skill"],
         enum: [
             "frontend developer",
             "backend developer",
             "UI/UX designer",
             "product designer",
             "full stack developer",
-            "technical writer",
         ],
-        required: [true, "An employee should provide skill(s)"],
     },
-    yearsOfExperience: {
+    location: {
         type: String,
-        required: [true, "An employee should provide years of experience"],
+        required: [true, "Please enter the job location"],
+        enum: ["Lagos", "Abuja", "Ogun", "Jos"],
     },
-    address: String,
-    linkedlnUrl: {
-        type: String,
-        validate: {
-            validator: function (val) {
-                return /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(val);
-            },
-            message: "Not a url",
-        },
+    keyword: {
+        type: [String],
+        required: [true, "Please enter the job location"],
+        enum: [
+            "Nodejs",
+            "TypeScript",
+            "Nestjs",
+            "Figma",
+            "Express",
+            "HTML",
+            "CSS",
+            "JAVASCRIPT",
+            "Adobe",
+            "JQUERY",
+            "BOOTSTRAP",
+        ],
     },
-    githubUrl: {
+    description: {
         type: String,
-        validate: {
-            validator: function (val) {
-                return /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(val);
-            },
-            message: "Not a url",
-        },
+        required: [true, "Please enter the job description"],
+    },
+    address: {
+        type: String,
+    },
+    jobType: {
+        type: String,
+        required: [true, "Please enter the job type"],
+        enum: ["Remote", "Physical", "Hybrid"],
+    },
+    workType: {
+        type: String,
+        required: [true, "Please enter the work type"],
+        enum: ["Full Time", "Part Time"],
+    },
+    isAvailable: {
+        type: Boolean,
+        required: [true, "A job must have an availability field "],
+        default: true,
+    },
+    salary: String,
+    yearOfExperience: {
+        type: String,
+        required: [true, "The year(s) of experience should be stated"],
     },
 }, {
     timestamps: true,
@@ -75,5 +107,5 @@ const profileSchema = new mongoose_1.Schema({
         virtuals: true,
     },
 });
-const Profile = (0, mongoose_1.model)("Profile", profileSchema);
-exports.default = Profile;
+const Job = (0, mongoose_1.model)("Job", jobSchema);
+exports.default = Job;

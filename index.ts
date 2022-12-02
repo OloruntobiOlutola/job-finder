@@ -11,6 +11,7 @@ import xss from "xss-clean";
 import mongoSanitize from "express-mongo-sanitize";
 import userRouter from "./src/users/users-routes";
 import profileRouter from "./src/profiles/profile-routes";
+import jobRouter from "./src/jobs/job-routes";
 import { ErrorObject } from "./utils/error";
 import ErrorHandler from "./utils/error-controller";
 
@@ -62,6 +63,7 @@ app.use(morgan("combined", { stream: accessLogStream }));
 // Routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/profiles", profileRouter);
+app.use("/api/v1/jobs", jobRouter);
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   const err = new ErrorObject(
     `${req.protocol}://${req.get("host")}${req.url} not found`,

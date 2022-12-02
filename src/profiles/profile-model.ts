@@ -10,7 +10,7 @@ const profileSchema = new Schema<ProfileDto>(
     },
     cv: String,
     skill: {
-      type: [String],
+      type: String,
       enum: [
         "frontend developer",
         "backend developer",
@@ -22,7 +22,7 @@ const profileSchema = new Schema<ProfileDto>(
       required: [true, "An employee should provide skill(s)"],
     },
     yearsOfExperience: {
-      type: Number,
+      type: String,
       required: [true, "An employee should provide years of experience"],
     },
     address: String,
