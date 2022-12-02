@@ -61,6 +61,10 @@ const userSchema = new mongoose_1.Schema({
     passwordResetToken: String,
     passwordChangedAt: Date,
     passwordTokenExpires: Date,
+    hasProfile: {
+        type: Boolean,
+        default: false,
+    },
 }, {
     timestamps: true,
     toObject: {

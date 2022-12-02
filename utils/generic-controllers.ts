@@ -80,8 +80,6 @@ export const updateOne = (Model: any) =>
       );
     res.status(200).json({
       status: "success",
-      data: {
-        data: updatedData,
-      },
+      data: updatedData,
     });
   });

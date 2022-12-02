@@ -51,7 +51,7 @@ exports.validateUser = (0, catch_async_1.catchAsync)(async (req, res, next) => {
 });
 const restrictTo = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        if (!roles.includes(req.user?.role || "string")) {
             return next(new error_1.ErrorObject("You are not authorised to perform this action.", 403));
         }
         next();
@@ -76,7 +76,7 @@ exports.protect = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     next();
 });
 exports.sameUser = (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    if (req.user.id !== req.params.id) {
+    if (req.user?.id !== req.params.id) {
         return next(new error_1.ErrorObject(`You're not authorised to perform this action`, 403));
     }
     next();

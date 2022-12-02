@@ -155,8 +155,7 @@ export const updatePassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     const user: HydratedDocument<UserDto> = await User.findById(
-      // @ts-ignore
-      req.user.id
+      req.user?.id
     ).select("+password");
     const { newPassword, newPasswordConfirm } = req.body;
     // @ts-ignore
@@ -166,7 +165,7 @@ export const updatePassword = catchAsync(
 
     user.password = newPassword;
     user.passwordConfirm = newPasswordConfirm;
-    await user.save();
+    await user.save({ validateBeforeSave: true });
 
     // @ts-ignore
     createAndSendToken(user, 200, res);

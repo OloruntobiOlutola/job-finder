@@ -32,8 +32,7 @@ export const validateUser = catchAsync(
 // Authorization
 export const restrictTo = (...roles: rolesType) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user?.role || "string")) {
       return next(
         new ErrorObject("You are not authorised to perform this action.", 403)
       );
@@ -69,7 +68,6 @@ export const protect = catchAsync(
       return next(new ErrorObject("Incorrect access token", 401));
     }
 
-    //   @ts-ignore
     req.user = currentUser;
     next();
   }
@@ -77,8 +75,7 @@ export const protect = catchAsync(
 
 export const sameUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
-    if (req.user.id !== req.params.id) {
+    if (req.user?.id !== req.params.id) {
       return next(
         new ErrorObject(`You're not authorised to perform this action`, 403)
       );

@@ -136,13 +136,13 @@ exports.resetPassword = (0, catch_async_1.catchAsync)(async (req, res, next) => 
     createAndSendToken(user, 200, res);
 });
 exports.updatePassword = (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    const user = await users_model_1.default.findById(req.user.id).select("+password");
+    const user = await users_model_1.default.findById(req.user?.id).select("+password");
     const { newPassword, newPasswordConfirm } = req.body;
     if (!(await bcrypt_1.default.compare(req.body.password, user.password))) {
         return next(new error_1.ErrorObject("Your password is incorrect", 401));
     }
     user.password = newPassword;
     user.passwordConfirm = newPasswordConfirm;
-    await user.save();
+    await user.save({ validateBeforeSave: true });
     createAndSendToken(user, 200, res);
 });

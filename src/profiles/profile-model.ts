@@ -26,8 +26,28 @@ const profileSchema = new Schema<ProfileDto>(
       required: [true, "An employee should provide years of experience"],
     },
     address: String,
-    linkedlnUrl: String,
-    githubUrl: String,
+    linkedlnUrl: {
+      type: String,
+      validate: {
+        validator: function (val: string) {
+          return /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(
+            val
+          );
+        },
+        message: "Not a url",
+      },
+    },
+    githubUrl: {
+      type: String,
+      validate: {
+        validator: function (val: string) {
+          return /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(
+            val
+          );
+        },
+        message: "Not a url",
+      },
+    },
   },
   {
     timestamps: true,

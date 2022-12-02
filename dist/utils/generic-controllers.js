@@ -61,9 +61,7 @@ const updateOne = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next
         return next(new error_1.ErrorObject(`Document with the id ${req.params.id} not found`, 404));
     res.status(200).json({
         status: "success",
-        data: {
-            data: updatedData,
-        },
+        data: updatedData,
     });
 });
 exports.updateOne = updateOne;
