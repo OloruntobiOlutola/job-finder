@@ -26,14 +26,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.samePerson = exports.protect = exports.restrictTo = exports.validateUser = void 0;
+exports.sameUser = exports.protect = exports.restrictTo = exports.validateUser = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const jwt = __importStar(require("jsonwebtoken"));
 const catch_async_1 = require("../../utils/catch-async");
 const error_1 = require("../../utils/error");
 const user_validation_1 = __importDefault(require("./user-validation"));
-const validateUser = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
+const users_model_1 = __importDefault(require("./users-model"));
+exports.validateUser = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     const payload = {
         name: req.body.name,
         email: req.body.email,
@@ -42,14 +43,12 @@ const validateUser = (Model) => (0, catch_async_1.catchAsync)(async (req, res, n
         phoneNumber: req.body.phoneNumber,
         role: req.body.role,
     };
-    const validation = await (0, user_validation_1.default)(Model);
-    const { error } = await validation.validateAsync({ ...payload });
+    const { error } = await user_validation_1.default.validateAsync({ ...payload });
     if (error) {
         return next(new error_1.ErrorObject(`Error in User Data : ${error.message}`, 406));
     }
     next();
 });
-exports.validateUser = validateUser;
 const restrictTo = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
@@ -59,7 +58,7 @@ const restrictTo = (...roles) => {
     };
 };
 exports.restrictTo = restrictTo;
-const protect = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
+exports.protect = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     let token;
     if (req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")) {
@@ -69,19 +68,16 @@ const protect = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) 
         return next(new error_1.ErrorObject("You are not logged in. Kindly log in.", 401));
     }
     const decodedToken = await jwt.verify(token, process.env.JWT_SECRET || "secret");
-    const currentUser = await Model.findById(decodedToken.id);
+    const currentUser = await users_model_1.default.findById(decodedToken.id);
     if (!currentUser) {
         return next(new error_1.ErrorObject("Incorrect access token", 401));
     }
     req.user = currentUser;
     next();
 });
-exports.protect = protect;
-const samePerson = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    console.log(req.user.id);
+exports.sameUser = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     if (req.user.id !== req.params.id) {
         return next(new error_1.ErrorObject(`You're not authorised to perform this action`, 403));
     }
     next();
 });
-exports.samePerson = samePerson;

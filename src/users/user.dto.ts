@@ -20,4 +20,6 @@ export interface UserDto {
   _id: string | undefined;
 
   id: string | undefined;
+
+  hasProfile: boolean;
 }

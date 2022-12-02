@@ -35,6 +35,7 @@ const error_1 = require("../../utils/error");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const email_1 = __importDefault(require("../../utils/email"));
 const crypto_1 = __importDefault(require("crypto"));
+const users_model_1 = __importDefault(require("./users-model"));
 const { JWT_COOKIE_EXPIRES_IN, JWT_EXPIRES_IN, JWT_SECRET, NODE_ENV } = process.env;
 const signToken = (id) => {
     return jwt.sign({ id }, JWT_SECRET || "my secret", {
@@ -59,9 +60,9 @@ const createAndSendToken = (0, catch_async_1.catchAsync)(async (user, statusCode
         user,
     });
 });
-const signUp = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
+exports.signUp = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     const { email, name, password, passwordConfirm, role, phoneNumber } = req.body;
-    const user = await Model.create({
+    const user = await users_model_1.default.create({
         email,
         name,
         password,
@@ -71,13 +72,12 @@ const signUp = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) =
     });
     createAndSendToken(user, 201, res);
 });
-exports.signUp = signUp;
-const signIn = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
+exports.signIn = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return next(new error_1.ErrorObject("Please enter your email and password", 400));
     }
-    const user = await Model.findOne({ email }).select("+password");
+    const user = await users_model_1.default.findOne({ email }).select("+password");
     if (!user) {
         return next(new error_1.ErrorObject("Invalid email or password", 401));
     }
@@ -87,9 +87,8 @@ const signIn = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) =
     }
     createAndSendToken(user, 200, res);
 });
-exports.signIn = signIn;
-const forgotPassword = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    const user = await Model.findOne({ email: req.body.email });
+exports.forgotPassword = (0, catch_async_1.catchAsync)(async (req, res, next) => {
+    const user = await users_model_1.default.findOne({ email: req.body.email });
     if (!user) {
         return next(new error_1.ErrorObject("There is no user with the provided email address", 404));
     }
@@ -116,13 +115,12 @@ const forgotPassword = (Model) => (0, catch_async_1.catchAsync)(async (req, res,
         next(new error_1.ErrorObject("Error while sending the token to your mail", 500));
     }
 });
-exports.forgotPassword = forgotPassword;
-const resetPassword = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
+exports.resetPassword = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     const hashToken = crypto_1.default
         .createHash("sha256")
         .update(req.params.token)
         .digest("hex");
-    const user = await Model.findOne({
+    const user = await users_model_1.default.findOne({
         passwordResetToken: hashToken,
         passwordTokenExpires: { $gt: Date.now() },
     });
@@ -134,12 +132,11 @@ const resetPassword = (Model) => (0, catch_async_1.catchAsync)(async (req, res, 
     user.passwordResetToken = undefined;
     user.passwordTokenExpires = undefined;
     user.passwordChangedAt = new Date(Date.now() - 1000);
-    await user.save({ validateBeforeSave: false });
+    await user.save({ validateBeforeSave: true });
     createAndSendToken(user, 200, res);
 });
-exports.resetPassword = resetPassword;
-const updatePassword = (Model) => (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    const user = await Model.findById(req.user.id).select("+password");
+exports.updatePassword = (0, catch_async_1.catchAsync)(async (req, res, next) => {
+    const user = await users_model_1.default.findById(req.user.id).select("+password");
     const { newPassword, newPasswordConfirm } = req.body;
     if (!(await bcrypt_1.default.compare(req.body.password, user.password))) {
         return next(new error_1.ErrorObject("Your password is incorrect", 401));
@@ -149,4 +146,3 @@ const updatePassword = (Model) => (0, catch_async_1.catchAsync)(async (req, res,
     await user.save();
     createAndSendToken(user, 200, res);
 });
-exports.updatePassword = updatePassword;

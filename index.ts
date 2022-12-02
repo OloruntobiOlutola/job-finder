@@ -9,7 +9,7 @@ import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import xss from "xss-clean";
 import mongoSanitize from "express-mongo-sanitize";
-import employeeRouter from "./src/users/employees/employees-routes";
+import userRouter from "./src/users/users-routes";
 import { ErrorObject } from "./utils/error";
 import ErrorHandler from "./utils/error-controller";
 
@@ -59,7 +59,7 @@ const accessLogStream = fs.createWriteStream(
 app.use(morgan("combined", { stream: accessLogStream }));
 
 // Routes
-app.use("/api/v1/employees", employeeRouter);
+app.use("/api/v1/users", userRouter);
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   const err = new ErrorObject(
     `${req.protocol}://${req.get("host")}${req.url} not found`,

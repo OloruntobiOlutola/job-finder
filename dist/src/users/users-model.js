@@ -33,16 +33,6 @@ const userSchema = new mongoose_1.Schema({
             message: "Password must contain at least a number, a lowercase and an uppercase alphabeth",
         },
     },
-    skills: {
-        type: [String],
-    },
-    yearsOfExperience: {
-        type: Number,
-    },
-    location: {
-        type: String,
-        enum: ["Ajah", "Lekki", "Lagos Mainland", "V.I", "Epe"],
-    },
     passwordConfirm: {
         type: String,
         required: [true, "A user must have an passwordConfirm"],

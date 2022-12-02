@@ -6,10 +6,10 @@ import { catchAsync } from "../../utils/catch-async";
 import { ErrorObject } from "../../utils/error";
 import { UserDto } from "./user.dto";
 import bcrypt from "bcrypt";
-import User from "./users-schema";
 import sendEmail from "../../utils/email";
 import crypto from "crypto";
 import { HydratedDocument } from "mongoose";
+import User from "./users-model";
 
 const { JWT_COOKIE_EXPIRES_IN, JWT_EXPIRES_IN, JWT_SECRET, NODE_ENV } =
   process.env;
@@ -44,11 +44,11 @@ const createAndSendToken = catchAsync(
 );
 
 // Sign Up User
-export const signUp = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const signUp = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { email, name, password, passwordConfirm, role, phoneNumber } =
       req.body;
-    const user: HydratedDocument<UserDto> = await Model.create({
+    const user: HydratedDocument<UserDto> = await User.create({
       email,
       name,
       password,
@@ -58,16 +58,17 @@ export const signUp = (Model: any) =>
     });
     // @ts-ignore
     createAndSendToken(user, 201, res);
-  });
+  }
+);
 
 // Sign In User
-export const signIn = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const signIn = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return next(new ErrorObject("Please enter your email and password", 400));
     }
-    const user = await Model.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return next(new ErrorObject("Invalid email or password", 401));
     }
@@ -80,12 +81,13 @@ export const signIn = (Model: any) =>
     }
     //   @ts-ignore
     createAndSendToken(user, 200, res);
-  });
+  }
+);
 
-export const forgotPassword = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const forgotPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     // 1. Get User based on posted email
-    const user = await Model.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return next(
         new ErrorObject("There is no user with the provided email address", 404)
@@ -121,15 +123,16 @@ export const forgotPassword = (Model: any) =>
       await user.save();
       next(new ErrorObject("Error while sending the token to your mail", 500));
     }
-  });
+  }
+);
 
-export const resetPassword = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const resetPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const hashToken = crypto
       .createHash("sha256")
       .update(req.params.token)
       .digest("hex");
-    const user = await Model.findOne({
+    const user = await User.findOne({
       passwordResetToken: hashToken,
       passwordTokenExpires: { $gt: Date.now() },
     });
@@ -142,15 +145,16 @@ export const resetPassword = (Model: any) =>
     user.passwordResetToken = undefined;
     user.passwordTokenExpires = undefined;
     user.passwordChangedAt = new Date(Date.now() - 1000);
-    await user.save({ validateBeforeSave: false });
+    await user.save({ validateBeforeSave: true });
     // @ts-ignore
     createAndSendToken(user, 200, res);
-  });
+  }
+);
 
-export const updatePassword = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const updatePassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
-    const user: HydratedDocument<UserDto> = await Model.findById(
+    const user: HydratedDocument<UserDto> = await User.findById(
       // @ts-ignore
       req.user.id
     ).select("+password");
@@ -166,4 +170,5 @@ export const updatePassword = (Model: any) =>
 
     // @ts-ignore
     createAndSendToken(user, 200, res);
-  });
+  }
+);

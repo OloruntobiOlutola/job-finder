@@ -37,7 +37,7 @@ const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const morgan_1 = __importDefault(require("morgan"));
 const xss_clean_1 = __importDefault(require("xss-clean"));
 const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
-const employees_routes_1 = __importDefault(require("./src/users/employees/employees-routes"));
+const users_routes_1 = __importDefault(require("./src/users/users-routes"));
 const error_1 = require("./utils/error");
 const error_controller_1 = __importDefault(require("./utils/error-controller"));
 const app = (0, express_1.default)();
@@ -59,7 +59,7 @@ app.use("/api", limiter);
 app.use(express_1.default.static(`${__dirname}/public`));
 const accessLogStream = fs.createWriteStream(path_1.default.join(__dirname, "access.log"), { flags: "a" });
 app.use((0, morgan_1.default)("combined", { stream: accessLogStream }));
-app.use("/api/v1/employees", employees_routes_1.default);
+app.use("/api/v1/users", users_routes_1.default);
 app.all("*", (req, res, next) => {
     const err = new error_1.ErrorObject(`${req.protocol}://${req.get("host")}${req.url} not found`, 404);
     next(err);

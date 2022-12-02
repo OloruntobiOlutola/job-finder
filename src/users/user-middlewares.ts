@@ -6,9 +6,10 @@ import { catchAsync } from "../../utils/catch-async";
 import { ErrorObject } from "../../utils/error";
 import { rolesType } from "./types";
 import userValidation from "./user-validation";
+import User from "./users-model";
 
-export const validateUser = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const validateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const payload = {
       name: req.body.name,
       email: req.body.email,
@@ -17,15 +18,16 @@ export const validateUser = (Model: any) =>
       phoneNumber: req.body.phoneNumber,
       role: req.body.role,
     };
-    const validation = await userValidation(Model);
-    const { error } = await validation.validateAsync({ ...payload });
+
+    const { error } = await userValidation.validateAsync({ ...payload });
     if (error) {
       return next(
         new ErrorObject(`Error in User Data : ${error.message}`, 406)
       );
     }
     next();
-  });
+  }
+);
 
 // Authorization
 export const restrictTo = (...roles: rolesType) => {
@@ -41,8 +43,8 @@ export const restrictTo = (...roles: rolesType) => {
 };
 
 // Authentication
-export const protect = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const protect = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     let token;
     if (
       req.headers.authorization &&
@@ -61,7 +63,7 @@ export const protect = (Model: any) =>
       process.env.JWT_SECRET || "secret"
     );
 
-    const currentUser = await Model.findById(decodedToken.id);
+    const currentUser = await User.findById(decodedToken.id);
 
     if (!currentUser) {
       return next(new ErrorObject("Incorrect access token", 401));
@@ -70,12 +72,11 @@ export const protect = (Model: any) =>
     //   @ts-ignore
     req.user = currentUser;
     next();
-  });
+  }
+);
 
-export const samePerson = (Model: any) =>
-  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
-    console.log(req.user.id);
+export const sameUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     if (req.user.id !== req.params.id) {
       return next(
@@ -83,4 +84,5 @@ export const samePerson = (Model: any) =>
       );
     }
     next();
-  });
+  }
+);
