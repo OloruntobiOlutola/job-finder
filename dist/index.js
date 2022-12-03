@@ -40,6 +40,7 @@ const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize
 const users_routes_1 = __importDefault(require("./src/users/users-routes"));
 const profile_routes_1 = __importDefault(require("./src/profiles/profile-routes"));
 const job_routes_1 = __importDefault(require("./src/jobs/job-routes"));
+const application_routes_1 = __importDefault(require("./src/applications/application-routes"));
 const error_1 = require("./utils/error");
 const error_controller_1 = __importDefault(require("./utils/error-controller"));
 const app = (0, express_1.default)();
@@ -64,6 +65,7 @@ app.use((0, morgan_1.default)("combined", { stream: accessLogStream }));
 app.use("/api/v1/users", users_routes_1.default);
 app.use("/api/v1/profiles", profile_routes_1.default);
 app.use("/api/v1/jobs", job_routes_1.default);
+app.use("/api/v1/applications", application_routes_1.default);
 app.all("*", (req, res, next) => {
     const err = new error_1.ErrorObject(`${req.protocol}://${req.get("host")}${req.url} not found`, 404);
     next(err);
