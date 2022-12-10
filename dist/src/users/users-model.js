@@ -7,6 +7,8 @@ const mongoose_1 = require("mongoose");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const crypto_1 = __importDefault(require("crypto"));
 const validator_1 = __importDefault(require("validator"));
+const TENMINUTES = 10 * 60 * 1000;
+const ONEDAY = 24 * 60 * 60 * 1000;
 const userSchema = new mongoose_1.Schema({
     name: {
         type: String,
@@ -61,10 +63,16 @@ const userSchema = new mongoose_1.Schema({
     passwordResetToken: String,
     passwordChangedAt: Date,
     passwordTokenExpires: Date,
-    hasProfile: {
+    profile: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "Profile",
+    },
+    status: {
         type: Boolean,
         default: false,
     },
+    confirmationCode: String,
+    confirmationCodeExpires: Date,
 }, {
     timestamps: true,
     toObject: {
@@ -73,6 +81,10 @@ const userSchema = new mongoose_1.Schema({
     toJSON: {
         virtuals: true,
     },
+});
+userSchema.pre(/^findOne/, function (next) {
+    this.populate("profile");
+    next();
 });
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
@@ -83,14 +95,23 @@ userSchema.pre("save", async function (next) {
     this.passwordConfirm = undefined;
     next();
 });
-userSchema.methods.createPasswordResetToken = function () {
-    const resetToken = crypto_1.default.randomBytes(32).toString("hex");
-    this.passwordResetToken = crypto_1.default
-        .createHash("sha256")
-        .update(resetToken)
-        .digest("hex");
-    this.passwordTokenExpires = Date.now() + 10 * 60 * 1000;
-    return resetToken;
+userSchema.methods.createToken = function (type) {
+    const token = crypto_1.default.randomBytes(32).toString("hex");
+    if (type === "confirm") {
+        this.confirmationCode = crypto_1.default
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+        this.confirmationCodeExpires = Date.now() + ONEDAY;
+    }
+    else {
+        this.passwordResetToken = crypto_1.default
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+        this.passwordTokenExpires = Date.now() + TENMINUTES;
+    }
+    return token;
 };
 userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
     if (this.passwordChangedAt) {

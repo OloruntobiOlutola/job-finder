@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 const { EMAIL_PASSWORD, EMAIL_USER } = process.env;
 
 type optionsType = {
-  email: string;
+  email: string | undefined;
   message: string;
   subject: string;
 };

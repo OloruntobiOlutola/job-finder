@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.signIn = exports.signUp = void 0;
+exports.logOut = exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.signIn = exports.confirmUser = exports.signUp = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const jwt = __importStar(require("jsonwebtoken"));
@@ -70,14 +70,53 @@ exports.signUp = (0, catch_async_1.catchAsync)(async (req, res, next) => {
         role,
         phoneNumber,
     });
-    createAndSendToken(user, 201, res);
+    const codeForConfirmation = user.createToken("confirm");
+    await user.save({ validateBeforeSave: false });
+    const confirmUrl = `${req.protocol}://${req.get("host")}/api/v1/users/confirm-user/${codeForConfirmation}`;
+    const message = `To complete your sign up click on the link below: ${confirmUrl}`;
+    try {
+        await (0, email_1.default)({
+            message,
+            email: user.email,
+            subject: "Complete your sign up. It's valid for 24 hours",
+        });
+        res.status(200).json({
+            status: "success",
+            message: "Token has been sent to your mail",
+            confirmUrl,
+        });
+    }
+    catch (err) {
+        user.confirmationCode = undefined;
+        user.confirmationCodeExpires = undefined;
+        await user.save();
+        next(new error_1.ErrorObject("Error while sending the token to your mail", 500));
+    }
+});
+exports.confirmUser = (0, catch_async_1.catchAsync)(async (req, res, next) => {
+    const hashToken = crypto_1.default
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+    const user = await users_model_1.default.findOne({
+        confirmationCode: hashToken,
+        confirmationCodeExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+        return next(new error_1.ErrorObject("Token is invalid or it has expired", 400));
+    }
+    user.confirmationCode = undefined;
+    user.confirmationCodeExpires = undefined;
+    user.status = true;
+    await user.save({ validateBeforeSave: true });
+    createAndSendToken(user, 200, res);
 });
 exports.signIn = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return next(new error_1.ErrorObject("Please enter your email and password", 400));
     }
-    const user = await users_model_1.default.findOne({ email }).select("+password");
+    const user = await users_model_1.default.findOne({ email, status: true }).select("+password");
     if (!user) {
         return next(new error_1.ErrorObject("Invalid email or password", 401));
     }
@@ -92,7 +131,7 @@ exports.forgotPassword = (0, catch_async_1.catchAsync)(async (req, res, next) =>
     if (!user) {
         return next(new error_1.ErrorObject("There is no user with the provided email address", 404));
     }
-    const resetToken = user.createPasswordResetToken();
+    const resetToken = user.createToken("password");
     await user.save({ validateBeforeSave: false });
     const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/users/reset-password/${resetToken}`;
     const message = `To reset your password click on the link below to submit your new password: ${resetUrl}`;
@@ -145,4 +184,11 @@ exports.updatePassword = (0, catch_async_1.catchAsync)(async (req, res, next) =>
     user.passwordConfirm = newPasswordConfirm;
     await user.save({ validateBeforeSave: true });
     createAndSendToken(user, 200, res);
+});
+exports.logOut = (0, catch_async_1.catchAsync)(async (req, res, next) => {
+    res.clearCookie("jwt");
+    res.status(200).json({
+        status: "success",
+        data: {},
+    });
 });

@@ -1,8 +1,11 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import validator from "validator";
 import { UserDto } from "./user.dto";
+
+const TENMINUTES = 10 * 60 * 1000;
+const ONEDAY = 24 * 60 * 60 * 1000;
 
 const userSchema = new Schema<UserDto>(
   {
@@ -69,10 +72,17 @@ const userSchema = new Schema<UserDto>(
 
     passwordTokenExpires: Date,
 
-    hasProfile: {
+    profile: {
+      type: Schema.Types.ObjectId,
+      ref: "Profile",
+    },
+    status: {
       type: Boolean,
       default: false,
     },
+    confirmationCode: String,
+
+    confirmationCodeExpires: Date,
   },
   {
     timestamps: true,
@@ -84,6 +94,11 @@ const userSchema = new Schema<UserDto>(
     },
   }
 );
+
+userSchema.pre(/^findOne/, function (next) {
+  this.populate("profile");
+  next();
+});
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
@@ -97,15 +112,23 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.createPasswordResetToken = function (): string {
-  const resetToken = crypto.randomBytes(32).toString("hex");
+userSchema.methods.createToken = function (type: string): string {
+  const token = crypto.randomBytes(32).toString("hex");
 
-  this.passwordResetToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
-  this.passwordTokenExpires = Date.now() + 10 * 60 * 1000;
-  return resetToken;
+  if (type === "confirm") {
+    this.confirmationCode = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+    this.confirmationCodeExpires = Date.now() + ONEDAY;
+  } else {
+    this.passwordResetToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+    this.passwordTokenExpires = Date.now() + TENMINUTES;
+  }
+  return token;
 };
 
 userSchema.methods.changePasswordAfter = function (

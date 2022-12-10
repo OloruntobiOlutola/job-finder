@@ -21,5 +21,11 @@ export interface UserDto {
 
   id: string | undefined;
 
-  hasProfile: boolean;
+  profile?: string | undefined;
+
+  status?: boolean | undefined;
+
+  confirmationCode?: string | undefined;
+
+  confirmationCodeExpires?: Date | undefined;
 }

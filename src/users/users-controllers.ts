@@ -1,12 +1,7 @@
 import { NextFunction, Response, Request } from "express";
 import { catchAsync } from "../../utils/catch-async";
 import { ErrorObject } from "../../utils/error";
-import {
-  deleteOne,
-  getAll,
-  getOne,
-  updateOne,
-} from "../../utils/generic-controllers";
+import { getAll, getOne, updateOne } from "../../utils/generic-controllers";
 import Profile from "../profiles/profile-model";
 import User from "./users-model";
 

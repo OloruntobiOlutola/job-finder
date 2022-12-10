@@ -8,6 +8,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import xss from "xss-clean";
+import cookieParser from "cookie-parser";
 import mongoSanitize from "express-mongo-sanitize";
 import userRouter from "./src/users/users-routes";
 import profileRouter from "./src/profiles/profile-routes";
@@ -21,7 +22,9 @@ const app: Express = express();
 // Middlewares
 
 // body parser
-app.use(express.json({ limit: "20kb" }));
+app.use(express.json({ limit: "70kb" }));
+
+app.use(cookieParser());
 
 // Set security headers
 app.use(helmet());

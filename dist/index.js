@@ -36,6 +36,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const morgan_1 = __importDefault(require("morgan"));
 const xss_clean_1 = __importDefault(require("xss-clean"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
 const users_routes_1 = __importDefault(require("./src/users/users-routes"));
 const profile_routes_1 = __importDefault(require("./src/profiles/profile-routes"));
@@ -44,7 +45,8 @@ const application_routes_1 = __importDefault(require("./src/applications/applica
 const error_1 = require("./utils/error");
 const error_controller_1 = __importDefault(require("./utils/error-controller"));
 const app = (0, express_1.default)();
-app.use(express_1.default.json({ limit: "20kb" }));
+app.use(express_1.default.json({ limit: "70kb" }));
+app.use((0, cookie_parser_1.default)());
 app.use((0, helmet_1.default)());
 const allowedOrigins = ["http://localhost:3000"];
 const options = {

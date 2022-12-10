@@ -10,7 +10,9 @@ router.post("/signin", user_auth_controllers_1.signIn);
 router.post("/forgot-password", user_auth_controllers_1.forgotPassword);
 router.patch("/reset-password/:token", user_auth_controllers_1.resetPassword);
 router.get("/", users_controllers_1.getUsers);
+router.get("/confirm-user/:token", user_auth_controllers_1.confirmUser);
 router.use(user_middlewares_1.protect);
+router.get("/logout", user_auth_controllers_1.logOut);
 router.patch("/update-password/:id", user_middlewares_1.sameUser, user_auth_controllers_1.updatePassword);
 router
     .route("/:id")

@@ -48,7 +48,7 @@ export const signUp = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, name, password, passwordConfirm, role, phoneNumber } =
       req.body;
-    const user: HydratedDocument<UserDto> = await User.create({
+    const user = await User.create({
       email,
       name,
       password,
@@ -57,7 +57,57 @@ export const signUp = catchAsync(
       phoneNumber,
     });
     // @ts-ignore
-    createAndSendToken(user, 201, res);
+    const codeForConfirmation = user.createToken("confirm");
+    await user.save({ validateBeforeSave: false });
+
+    // 3. Send token to the email addess
+    const confirmUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/users/confirm-user/${codeForConfirmation}`;
+
+    const message = `To complete your sign up click on the link below: ${confirmUrl}`;
+
+    try {
+      await sendEmail({
+        message,
+        email: user.email,
+        subject: "Complete your sign up. It's valid for 24 hours",
+      });
+
+      res.status(200).json({
+        status: "success",
+        message: "Token has been sent to your mail",
+        confirmUrl,
+      });
+    } catch (err) {
+      user.confirmationCode = undefined;
+      user.confirmationCodeExpires = undefined;
+      await user.save();
+      next(new ErrorObject("Error while sending the token to your mail", 500));
+    }
+  }
+);
+
+export const confirmUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const hashToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+    const user = await User.findOne({
+      confirmationCode: hashToken,
+      confirmationCodeExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      return next(new ErrorObject("Token is invalid or it has expired", 400));
+    }
+
+    user.confirmationCode = undefined;
+    user.confirmationCodeExpires = undefined;
+    user.status = true;
+    await user.save({ validateBeforeSave: true });
+    // @ts-ignore
+    createAndSendToken(user, 200, res);
   }
 );
 
@@ -68,7 +118,9 @@ export const signIn = catchAsync(
     if (!email || !password) {
       return next(new ErrorObject("Please enter your email and password", 400));
     }
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email, status: true }).select(
+      "+password"
+    );
     if (!user) {
       return next(new ErrorObject("Invalid email or password", 401));
     }
@@ -94,8 +146,8 @@ export const forgotPassword = catchAsync(
       );
     }
     // 2. Generate random reset token
-    //   @ts-ignore
-    const resetToken = user.createPasswordResetToken();
+    // @ts-ignore
+    const resetToken = user.createToken("password");
     await user.save({ validateBeforeSave: false });
 
     // 3. Send token to the email addess
@@ -169,5 +221,15 @@ export const updatePassword = catchAsync(
 
     // @ts-ignore
     createAndSendToken(user, 200, res);
+  }
+);
+
+export const logOut = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.clearCookie("jwt");
+    res.status(200).json({
+      status: "success",
+      data: {},
+    });
   }
 );
