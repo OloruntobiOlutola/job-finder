@@ -65,13 +65,13 @@ export const signUp = catchAsync(
       "host"
     )}/api/v1/users/confirm-user/${codeForConfirmation}`;
 
-    const message = `To complete your sign up click on the link below: ${confirmUrl}`;
+    const html = `<h3>To complete your sign up click on the link below: <br> <a href=${confirmUrl}> <button> Click here </button> </a> </h3>`;
 
     try {
       await sendEmail({
-        message,
         email: user.email,
         subject: "Complete your sign up. It's valid for 24 hours",
+        html,
       });
 
       res.status(200).json({
@@ -155,11 +155,11 @@ export const forgotPassword = catchAsync(
       "host"
     )}/api/v1/users/reset-password/${resetToken}`;
 
-    const message = `To reset your password click on the link below to submit your new password: ${resetUrl}`;
+    const html = `<h3>To reset your password click on the link below to submit your new password: <br> <a href= ${resetUrl}> <button> Click here </button></a> </h3>`;
 
     try {
       await sendEmail({
-        message,
+        html,
         email: user.email || "email",
         subject: "Your password reset url. It's valid for 10mins",
       });

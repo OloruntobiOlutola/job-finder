@@ -73,12 +73,12 @@ exports.signUp = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     const codeForConfirmation = user.createToken("confirm");
     await user.save({ validateBeforeSave: false });
     const confirmUrl = `${req.protocol}://${req.get("host")}/api/v1/users/confirm-user/${codeForConfirmation}`;
-    const message = `To complete your sign up click on the link below: ${confirmUrl}`;
+    const html = `<h3>To complete your sign up click on the link below: <br> <a href=${confirmUrl}> <button> Click here </button> </a> </h3>`;
     try {
         await (0, email_1.default)({
-            message,
             email: user.email,
             subject: "Complete your sign up. It's valid for 24 hours",
+            html,
         });
         res.status(200).json({
             status: "success",
@@ -134,10 +134,10 @@ exports.forgotPassword = (0, catch_async_1.catchAsync)(async (req, res, next) =>
     const resetToken = user.createToken("password");
     await user.save({ validateBeforeSave: false });
     const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/users/reset-password/${resetToken}`;
-    const message = `To reset your password click on the link below to submit your new password: ${resetUrl}`;
+    const html = `<h3>To reset your password click on the link below to submit your new password: <br> <a href= ${resetUrl}> <button> Click here </button></a> </h3>`;
     try {
         await (0, email_1.default)({
-            message,
+            html,
             email: user.email || "email",
             subject: "Your password reset url. It's valid for 10mins",
         });

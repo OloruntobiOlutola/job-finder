@@ -6,8 +6,8 @@ const { EMAIL_PASSWORD, EMAIL_USER } = process.env;
 
 type optionsType = {
   email: string | undefined;
-  message: string;
   subject: string;
+  html: string;
 };
 
 const sendEmail = async (options: optionsType) => {
@@ -23,7 +23,7 @@ const sendEmail = async (options: optionsType) => {
     from: EMAIL_USER,
     to: options.email,
     subject: options.subject,
-    text: options.message,
+    html: options.html,
   };
 
   await transport.sendMail(mailOptions);
