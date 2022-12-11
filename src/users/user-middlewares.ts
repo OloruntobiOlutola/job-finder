@@ -30,7 +30,7 @@ export const validateUser = catchAsync(
 );
 
 // Authorization
-export const restrictTo = (...roles: rolesType) => {
+export const restrictTo = (...roles: any) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user?.role || "string")) {
       return next(

@@ -16,7 +16,7 @@ const sendEmail = async (options) => {
         },
     });
     const mailOptions = {
-        from: EMAIL_USER,
+        from: "Job Finder",
         to: options.email,
         subject: options.subject,
         html: options.html,

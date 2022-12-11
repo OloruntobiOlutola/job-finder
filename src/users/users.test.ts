@@ -1,5 +1,5 @@
 import request from "supertest";
-import app from "../index";
+import app from "../../index";
 
 describe("GET /users", () => {
   it("responds with a json message", async () =>

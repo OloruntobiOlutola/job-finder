@@ -233,3 +233,19 @@ export const logOut = catchAsync(
     });
   }
 );
+
+export const deleteUnconfirmedUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const users = await User.find({
+      status: false,
+      confirmationCodeExpires: { $gt: Date.now() },
+    });
+    users.forEach(async (user) => {
+      await User.findByIdAndDelete(user.id);
+    });
+
+    res.status(204).json({
+      status: "success",
+    });
+  }
+);

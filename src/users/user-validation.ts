@@ -3,7 +3,8 @@ import { ErrorObject } from "../../utils/error";
 import User from "./users-model";
 
 const lookup = async (email: string) => {
-  const user = await User.findOne({ email: email });
+  const user = await User.findOne({ email: email, status: true });
+
   if (user) {
     throw new ErrorObject(`${email} has been used before`, 400);
   }

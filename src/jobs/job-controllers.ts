@@ -53,3 +53,28 @@ export const recommendedJobsHandler = catchAsync(
     });
   }
 );
+
+export const recommendedEmployeesHandler = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const job = await Job.findById(req.params.id);
+    if (!job) {
+      return next(new ErrorObject("No job with the requested Id", 400));
+    }
+
+    const recommendedEmployers = await User.find({
+      skill: job.skill,
+      yearsOfExperience: job.yearOfExperience,
+    });
+
+    if (!recommendedEmployers) {
+      return next(
+        new ErrorObject("No employee meets the job requirement", 400)
+      );
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: recommendedEmployers,
+    });
+  }
+);

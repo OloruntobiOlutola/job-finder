@@ -5,6 +5,7 @@ import {
   deleteJob,
   getJob,
   getJobs,
+  recommendedEmployeesHandler,
   recommendedJobsHandler,
   updateJob,
 } from "./job-controllers";
@@ -20,6 +21,11 @@ router.get(
   recommendedJobsHandler
 );
 router.use(protect, restrictTo("employer"));
+router.get(
+  "/recommended-employer/:id",
+  sameEmployer,
+  recommendedEmployeesHandler
+);
 router
   .route("/:id")
   .get(sameEmployer, getJob)

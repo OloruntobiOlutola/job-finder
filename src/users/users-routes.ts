@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   confirmUser,
+  deleteUnconfirmedUsers,
   forgotPassword,
   logOut,
   resetPassword,
@@ -8,7 +9,12 @@ import {
   signUp,
   updatePassword,
 } from "./user-auth-controllers";
-import { protect, sameUser, validateUser } from "./user-middlewares";
+import {
+  protect,
+  restrictTo,
+  sameUser,
+  validateUser,
+} from "./user-middlewares";
 import { deleteUser, getUser, getUsers, updateUser } from "./users-controllers";
 
 const router = Router();
@@ -27,5 +33,11 @@ router
   .get(sameUser, getUser)
   .delete(sameUser, deleteUser)
   .patch(sameUser, updateUser);
+router.delete(
+  "/delete-unconfirmed",
+  restrictTo("admin"),
+  deleteUnconfirmedUsers
+);
+router.get("/get-user/:id", restrictTo("employer", "admin"), getUser);
 
 export default router;

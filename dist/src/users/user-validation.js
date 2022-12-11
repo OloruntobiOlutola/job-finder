@@ -7,7 +7,7 @@ const joi_1 = __importDefault(require("joi"));
 const error_1 = require("../../utils/error");
 const users_model_1 = __importDefault(require("./users-model"));
 const lookup = async (email) => {
-    const user = await users_model_1.default.findOne({ email: email });
+    const user = await users_model_1.default.findOne({ email: email, status: true });
     if (user) {
         throw new error_1.ErrorObject(`${email} has been used before`, 400);
     }
