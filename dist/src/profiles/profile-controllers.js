@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createProfile = exports.cvFormatter = exports.uploadEmployeeCV = exports.getProfiles = exports.getProfile = exports.updateProfile = void 0;
+exports.createProfile = exports.cvFormatter = exports.uploadEmployeeCV = exports.getProfile = exports.updateProfile = void 0;
 const multer_1 = __importDefault(require("multer"));
 const catch_async_1 = require("../../utils/catch-async");
 const cloudinary_1 = __importDefault(require("../../utils/cloudinary"));
@@ -11,10 +11,10 @@ const error_1 = require("../../utils/error");
 const generic_controllers_1 = require("../../utils/generic-controllers");
 const users_model_1 = __importDefault(require("../users/users-model"));
 const profile_model_1 = __importDefault(require("./profile-model"));
+const maxSize = 2 * 1024 * 1024;
 exports.updateProfile = (0, generic_controllers_1.updateOne)(profile_model_1.default);
 exports.getProfile = (0, generic_controllers_1.getOne)(profile_model_1.default);
-exports.getProfiles = (0, generic_controllers_1.getAll)(profile_model_1.default);
-const multerStorage = multer_1.default.memoryStorage();
+const multerStorage = multer_1.default.diskStorage({});
 const multerFilter = (req, file, cb) => {
     if (file.mimetype.startsWith("image")) {
         cb(null, true);
@@ -26,6 +26,7 @@ const multerFilter = (req, file, cb) => {
 const uploadCV = (0, multer_1.default)({
     storage: multerStorage,
     fileFilter: multerFilter,
+    limits: { fileSize: maxSize },
 });
 exports.uploadEmployeeCV = uploadCV.single("cv");
 exports.cvFormatter = (0, catch_async_1.catchAsync)(async (req, res, next) => {
@@ -40,6 +41,7 @@ exports.cvFormatter = (0, catch_async_1.catchAsync)(async (req, res, next) => {
             id: req.params.id,
         };
         const result = await (0, cloudinary_1.default)(image);
+        console.log(result);
         req.body.cv = result.secure_url;
     }
     next();

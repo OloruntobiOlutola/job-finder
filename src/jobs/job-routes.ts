@@ -20,6 +20,7 @@ router.get(
   restrictTo("employee"),
   recommendedJobsHandler
 );
+router.get("/:id", getJob);
 router.use(protect, restrictTo("employer"));
 router.get(
   "/recommended-employer/:id",

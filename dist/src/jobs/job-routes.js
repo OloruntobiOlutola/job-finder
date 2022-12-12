@@ -7,7 +7,9 @@ const job_middlewares_1 = require("./job-middlewares");
 const router = (0, express_1.Router)();
 router.route("/").get(job_controllers_1.getJobs).post(user_middlewares_1.protect, (0, user_middlewares_1.restrictTo)("employer"), job_controllers_1.createJob);
 router.get("/jobs-for-me", user_middlewares_1.protect, (0, user_middlewares_1.restrictTo)("employee"), job_controllers_1.recommendedJobsHandler);
+router.get("/:id", job_controllers_1.getJob);
 router.use(user_middlewares_1.protect, (0, user_middlewares_1.restrictTo)("employer"));
+router.get("/recommended-employer/:id", job_middlewares_1.sameEmployer, job_controllers_1.recommendedEmployeesHandler);
 router
     .route("/:id")
     .get(job_middlewares_1.sameEmployer, job_controllers_1.getJob)

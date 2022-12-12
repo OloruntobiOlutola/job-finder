@@ -55,7 +55,7 @@ const jobSchema = new mongoose_1.Schema({
         enum: ["Lagos", "Abuja", "Ogun", "Jos"],
     },
     keyword: {
-        type: [String],
+        type: String,
         required: [true, "Please enter the job location"],
         enum: [
             "Nodejs",

@@ -135,7 +135,6 @@ userSchema.methods.changePasswordAfter = function (
   JWTTimestamp: Date
 ): boolean {
   if (this.passwordChangedAt) {
-    console.log(JWTTimestamp < this.passwordChangedAt);
     return JWTTimestamp < this.passwordChangedAt;
   }
   return false;

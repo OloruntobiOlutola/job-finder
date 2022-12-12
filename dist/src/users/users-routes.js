@@ -19,4 +19,6 @@ router
     .get(user_middlewares_1.sameUser, users_controllers_1.getUser)
     .delete(user_middlewares_1.sameUser, users_controllers_1.deleteUser)
     .patch(user_middlewares_1.sameUser, users_controllers_1.updateUser);
+router.delete("/delete-unconfirmed", (0, user_middlewares_1.restrictTo)("admin"), user_auth_controllers_1.deleteUnconfirmedUsers);
+router.get("/get-user/:id", (0, user_middlewares_1.restrictTo)("employer", "admin"), users_controllers_1.getUser);
 exports.default = router;

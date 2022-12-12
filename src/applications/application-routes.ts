@@ -50,7 +50,6 @@ router.get(
 router.get(
   "/:id/employer",
   restrictTo("employer"),
-  sameJobOwner,
   getAllApplicationsByJobOwner
 );
 

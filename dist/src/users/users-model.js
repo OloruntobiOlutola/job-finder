@@ -21,6 +21,7 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         required: [true, "Email field is required for all users"],
         validate: [validator_1.default.isEmail, "Please enter a valid email"],
+        unique: [true],
     },
     password: {
         type: String,
@@ -114,7 +115,6 @@ userSchema.methods.createToken = function (type) {
 };
 userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
     if (this.passwordChangedAt) {
-        console.log(JWTTimestamp < this.passwordChangedAt);
         return JWTTimestamp < this.passwordChangedAt;
     }
     return false;

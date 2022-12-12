@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logOut = exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.signIn = exports.confirmUser = exports.signUp = void 0;
+exports.deleteUnconfirmedUsers = exports.logOut = exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.signIn = exports.confirmUser = exports.signUp = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const jwt = __importStar(require("jsonwebtoken"));
@@ -190,5 +190,17 @@ exports.logOut = (0, catch_async_1.catchAsync)(async (req, res, next) => {
     res.status(200).json({
         status: "success",
         data: {},
+    });
+});
+exports.deleteUnconfirmedUsers = (0, catch_async_1.catchAsync)(async (req, res, next) => {
+    const users = await users_model_1.default.find({
+        status: false,
+        confirmationCodeExpires: { $gt: Date.now() },
+    });
+    users.forEach(async (user) => {
+        await users_model_1.default.findByIdAndDelete(user.id);
+    });
+    res.status(204).json({
+        status: "success",
     });
 });

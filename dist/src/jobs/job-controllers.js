@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.recommendedJobsHandler = exports.createJob = exports.deleteJob = exports.updateJob = exports.getJobs = exports.getJob = void 0;
+exports.recommendedEmployeesHandler = exports.recommendedJobsHandler = exports.createJob = exports.deleteJob = exports.updateJob = exports.getJobs = exports.getJob = void 0;
 const catch_async_1 = require("../../utils/catch-async");
 const error_1 = require("../../utils/error");
 const generic_controllers_1 = require("../../utils/generic-controllers");
 const profile_model_1 = __importDefault(require("../profiles/profile-model"));
+const users_model_1 = __importDefault(require("../users/users-model"));
 const job_model_1 = __importDefault(require("./job-model"));
 exports.getJob = (0, generic_controllers_1.getOne)(job_model_1.default);
 exports.getJobs = (0, generic_controllers_1.getAll)(job_model_1.default);
@@ -36,5 +37,22 @@ exports.recommendedJobsHandler = (0, catch_async_1.catchAsync)(async (req, res, 
     res.status(200).json({
         status: "success",
         data: recommendedJobs,
+    });
+});
+exports.recommendedEmployeesHandler = (0, catch_async_1.catchAsync)(async (req, res, next) => {
+    const job = await job_model_1.default.findById(req.params.id);
+    if (!job) {
+        return next(new error_1.ErrorObject("No job with the requested Id", 400));
+    }
+    const recommendedEmployers = await users_model_1.default.find({
+        skill: job.skill,
+        yearsOfExperience: job.yearOfExperience,
+    });
+    if (!recommendedEmployers) {
+        return next(new error_1.ErrorObject("No employee meets the job requirement", 400));
+    }
+    res.status(200).json({
+        status: "success",
+        data: recommendedEmployers,
     });
 });

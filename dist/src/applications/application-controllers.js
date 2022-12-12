@@ -5,18 +5,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteApplication = exports.createApplication = exports.getApplication = exports.getApplicationsByApplicant = exports.getAllApplicationsByJobOwner = exports.getApplicationsByJobOwnerForAJob = exports.updateApplication = void 0;
 const catch_async_1 = require("../../utils/catch-async");
+const error_1 = require("../../utils/error");
 const generic_controllers_1 = require("../../utils/generic-controllers");
+const job_model_1 = __importDefault(require("../jobs/job-model"));
 const application_model_1 = __importDefault(require("./application-model"));
 exports.updateApplication = (0, generic_controllers_1.updateOne)(application_model_1.default);
 exports.getApplicationsByJobOwnerForAJob = (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    const applications = await application_model_1.default.find({ jobId: req.params.jobId });
+    const applications = await application_model_1.default.find({ jobId: req.params.id });
+    const job = await job_model_1.default.findById(req.params.id);
+    if (req.user?.id !== job?.employerId?.toString()) {
+        return next(new error_1.ErrorObject(`You're not authorised to perform this action`, 403));
+    }
     res.status(200).json({
         status: "success",
         data: applications,
     });
 });
 exports.getAllApplicationsByJobOwner = (0, catch_async_1.catchAsync)(async (req, res, next) => {
-    const applications = await application_model_1.default.find({ employerId: req.user?.id });
+    const applications = await application_model_1.default.find({
+        employerId: req.user?.id,
+    });
     res.status(200).json({
         status: "success",
         data: applications,
