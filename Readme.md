@@ -21,10 +21,14 @@ $ npm install
 
 <h2>Running the app</h2>
 
-```bash
 # development and watch mode
+
+```bash
 $ npm run dev
+```
 
 # production mode
+
+```bash
 $ npm run start
 ```
