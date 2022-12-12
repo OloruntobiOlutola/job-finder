@@ -11,7 +11,7 @@
 
 <h2>Documentation</h2>
 
-[Documentation](https://documenter.getpostman.com/view/22690167/2s8YzUvfmD) for accessing the documentation
+For accessing the documentation click on the link [Documentation](https://documenter.getpostman.com/view/22690167/2s8YzUvfmD)
 
 <h2>Installation</h2>
 
