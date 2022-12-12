@@ -2,7 +2,7 @@
 
 <p>This is an application that is meant to help employers and employees connect. It gives employers access to create jobs and view employees that are recommended for the posted jobs while it gives the employees access to get recommended jobs and also to apply for such jobs.</p>
 
-<h2> Functional Requirements <h2>
+<h2> Functional Requirements </h2>
 
 - Users should be able to create a profile and update their skills and experience
 - Users should be able to search for jobs based on keywords, location, and job type
@@ -11,4 +11,4 @@
 
 <h2>Documentation</h2>
 
-[Docs](https://documenter.getpostman.com/view/22690167/2s8YzUvfmD) for accessing the documentation
+[Documentation](https://documenter.getpostman.com/view/22690167/2s8YzUvfmD) for accessing the documentation
