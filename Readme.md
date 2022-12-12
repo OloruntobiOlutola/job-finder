@@ -12,3 +12,19 @@
 <h2>Documentation</h2>
 
 [Documentation](https://documenter.getpostman.com/view/22690167/2s8YzUvfmD) for accessing the documentation
+
+<h2>Installation</h2>
+
+```bash
+$ npm install
+```
+
+<h2>Running the app</h2>
+
+```bash
+# development and watch mode
+$ npm run dev
+
+# production mode
+$ npm run start
+```
